@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Суперпозиция</string>
+    <string name="app_error">Ошибка</string>
+
+    <!-- Экран лобби (главный) -->
+    <string name="lobby_title">Игроки в сети</string>
+    <string name="lobby_empty_list">Нет игроков в сети</string>
+    <string name="lobby_player_card_player">Игрок</string>
+
+    <!-- Игра с ИИ -->
+    <string name="ai_game_nav_label">Игра с AI</string>
+    <string name="ai_game_title">Игра с AI</string>
+    <string name="ai_game_subtitle">Выберите сложность и начните партию</string>
+    <string name="ai_game_difficulty_title">Сложность соперника</string>
+    <string name="ai_game_low_title">Лёгкий</string>
+    <string name="ai_game_low_description">Подходит для знакомства с игрой</string>
+    <string name="ai_game_mcts_title">Продвинутый</string>
+    <string name="ai_game_mcts_description">Просчитывает наилучшие ходы</string>
+    <string name="ai_game_unranked_info">Без рейтинга и записи в историю</string>
+    <string name="ai_game_start_button">Начать игру</string>
+    <string name="ai_game_starting">Создаём партию…</string>
+    <string name="ai_game_waiting_connection">Подключаемся к игровому серверу…</string>
+    <string name="ai_game_error_no_connection">Нет соединения с игровым сервером</string>
+    <string name="ai_game_error_session_unavailable">Сессия недоступна. Войдите снова или перезапустите приложение</string>
+    <string name="ai_game_error_invalid_session">Гостевой ID недействителен. Перезапустите приложение</string>
+    <string name="ai_game_error_already_in_game">У вас уже есть незавершённая партия</string>
+    <string name="ai_game_error_server_unavailable">Игровой сервер временно недоступен</string>
+    <string name="ai_game_error_network">Сетевая ошибка. Проверьте подключение</string>
+    <string name="ai_game_error_unknown">Не удалось начать игру. Попробуйте ещё раз</string>
+
+    <!-- Экран приглашений (уведомлений) -->
+    <string name="invites_title">Приглашения</string>
+    <string name="invites_empty_list">Пока здесь ничего нет</string>
+    <string name="invites_invite_text">Приглашение от</string>
+
+    <!-- Экран авторизации -->
+    <string name="auth_title">Суперпозиция</string>
+    <string name="auth_info">Войдите или создайте аккаунт</string>
+    <string name="auth_email_field">Email</string>
+    <string name="auth_password_field">Пароль</string>
+    <string name="auth_logIn_button">Войти</string>
+    <string name="auth_signUp_button">Зарегистрироваться</string>
+
+    <!-- Экран истории матчей -->
+    <string name="history_title">История</string>
+    <string name="history_error">Ошибка</string>
+    <string name="history_empty_list">Нет сыгранных матчей</string>
+    <string name="history_tag_victory">Победа</string>
+    <string name="history_tag_defeat">Поражение</string>
+    <string name="history_moves_made">Ходов</string>
+
+    <!-- Экран картотеки -->
+    <string name="library_title">Картотека</string>
+    <string name="library_info">Коллекция квантовых карт</string>
+
+    <!-- Экран профиля (неавторизованный) -->
+    <string name="unauthorized_profile_general_info">Вы не авторизованы</string>
+    <string name="unauthorized_profile_info">Войдите или создайте аккаунт\nдля доступа к профилю</string>
+    <string name="unauthorized_profile_logInButton">Войти</string>
+
+    <!-- Экран профиля (авторизованный) -->
+    <string name="authorized_profile_tag_victory">Победа</string>
+    <string name="authorized_profile_tag_defeat">Поражение</string>
+    <string name="profile_settings_content_description">Открыть настройки</string>
+    <string name="authorized_profile_rating">Рейтинг</string>
+    <string name="authorized_profile_victory_amount">Победы</string>
+    <string name="authorized_profile_recent_games">Недавние игры</string>
+    <string name="authorized_profile_history">История</string>
+    <string name="authorized_profile_rang_progress">Ранговый прогресс</string>
+    <string name="authorized_profile_moves_made">Ходов</string>
+    <string name="authorized_profile_rating_change">рейтинга</string>
+
+    <!-- Экран настроек -->
+    <string name="settings_title">Настройки</string>
+    <string name="settings_sound_section">Звук</string>
+    <string name="settings_music">Музыка в игре</string>
+    <string name="settings_invite_sound">Звук приглашений</string>
+
+    <string name="settings_account_section">Аккаунт</string>
+    <string name="settings_change_email">Сменить почту</string>
+    <string name="settings_logout">Выйти из аккаунта</string>
+    <string name="settings_delete_account">Удалить аккаунт</string>
+
+    <string name="settings_info_section">О приложении</string>
+    <string name="settings_about">О приложении</string>
+    <string name="settings_version">Версия</string>
+
+    <string name="settings_toast_email_successful">Email успешно изменён</string>
+    <string name="settings_toast_logout_successful">Вы вышли из аккаунта</string>
+    <string name="settings_toast_delete_successful">Аккаунт удалён</string>
+
+</resources>

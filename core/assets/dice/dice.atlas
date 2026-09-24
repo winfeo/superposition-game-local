@@ -1,0 +1,46 @@
+dice.png
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+plus
+  rotate: false
+  xy: 0, 0
+  size: 118, 115
+  orig: 118, 115
+  offset: 0, 0
+  index: -1
+minus
+  rotate: false
+  xy: 119, 0
+  size: 116, 116
+  orig: 116, 116
+  offset: 0, 0
+  index: -1
+one
+  rotate: false
+  xy: 0, 234
+  size: 117, 116
+  orig: 117, 116
+  offset: 0, 0
+  index: -1
+i_plus
+  rotate: false
+  xy: 118, 234
+  size: 116, 116
+  orig: 116, 116
+  offset: 0, 0
+  index: -1
+i_minus
+  rotate: false
+  xy: 0, 116
+  size: 117, 117
+  orig: 117, 117
+  offset: 0, 0
+  index: -1
+zero
+  rotate: false
+  xy: 119, 117
+  size: 116, 114
+  orig: 116, 114
+  offset: 0, 0
+  index: -1

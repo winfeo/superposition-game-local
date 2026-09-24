@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Игровая панель -->
+    <string name="panel_player_tag">вы</string>
+    <string name="panel_turn_tag_active">ваш ход</string>
+    <string name="panel_turn_tag_wait">ждите</string>
+
+</resources>

@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Диалог просмотра (превью) карты -->
+    <string name="dialog_card_prev">* нажмите в любое место\nдля закрытия</string>
+
+    <!-- Диалог окончания игры -->
+    <string name="dialog_game_finished_victory">Победа</string>
+    <string name="dialog_game_finished_victory_info">Вы успешно завершили квантовую партию</string>
+    <string name="dialog_game_finished_defeat">Поражение</string>
+    <string name="dialog_game_finished_defeat_info">В этот раз победа досталась сопернику</string>
+    <string name="dialog_game_finished_return_to_lobby">Вернуться в лобби</string>
+
+    <!-- Диалог меню игры -->
+    <string name="dialog_menu_title">меню</string>
+    <string name="dialog_menu_rules">Правила</string>
+    <string name="dialog_menu_rules_detailed">Механики игровых карт</string>
+    <string name="dialog_menu_settings">Настройки</string>
+    <string name="dialog_menu_settings_detailed">Игровые настройки</string>
+    <string name="dialog_menu_continue">Продолжить</string>
+    <string name="dialog_menu_continue_detailed">Вернуться в игру</string>
+    <string name="dialog_menu_surrender">Сдаться</string>
+    <string name="dialog_menu_surrender_detailed">Вернуться в игру</string>
+
+    <!-- Диалог Reshuffle карты -->
+    <string name="dialog_reshuffle_card_confirm">Подтвердить</string>
+    <string name="dialog_reshuffle_card_info">* выберите карты для сброса</string>
+
+    <!-- Диалог Rotate карты -->
+    <string name="dialog_rotate_card">* выберите новое состояние</string>
+
+    <!-- Диалог смены никнейма -->
+    <string name="dialog_edit_nickname_title">Изменить никнейм</string>
+    <string name="dialog_edit_nickname_new">Изменить никнейм</string>
+    <string name="dialog_edit_nickname_cancel">Отмена</string>
+    <string name="dialog_edit_nickname_save">Сохранить</string>
+
+    <!-- Диалог приглашения в игру -->
+    <string name="dialog_invitation_title">Предложение сыграть</string>
+    <string name="dialog_invitation_send_info">Отправить приглашение игроку</string>
+    <string name="dialog_invitation_cancel">Отмена</string>
+    <string name="dialog_invitation_send">Отправить</string>
+
+    <!-- Диалог смены почты -->
+    <string name="dialog_settings_email">Email</string>
+    <string name="dialog_settings_change_email">Сменить почту</string>
+    <string name="dialog_settings_cancel">Отмена</string>
+    <string name="dialog_settings_save">Сохранить</string>
+
+    <!-- Диалог удаления аккаунта -->
+    <string name="dialog_settings_delete_account">Удалить аккаунт</string>
+    <string name="dialog_settings_delete_info">Вы уверены? Ваши данные будут удалены безвозвратно</string>
+    <string name="dialog_settings_delete_confirm">Удалить</string>
+    <string name="dialog_settings_logout_title">Выйти из аккаунта</string>
+    <string name="dialog_settings_logout_info">Вы уверены, что хотите выйти? Приложение продолжит работу в гостевом режиме</string>
+    <string name="dialog_settings_logout_confirm">Выйти</string>
+    <string name="dialog_settings_logout_cancel">Вернуться</string>
+
+    <!-- Диалог (снекбар) подтвержения отправки приглашения -->
+    <string name="dialog_invitation_confirm_success">Приглашение отправлено игроку</string>
+    <string name="dialog_invitation_confirm_error">Ошибка при отправке приглашения</string>
+
+    <!-- Диалог игровых правил -->
+    <string name="dialog_game_rules_title">ПРАВИЛА</string>
+    <string name="dialog_game_rules_close">Закрыть правила</string>
+    <string name="dialog_game_rules_error">Не удалось загрузить правила</string>
+
+    <!-- Диалог переподключения к матчу -->
+    <string name="dialog_reconnect_title">НЕЗАВЕРШЁННЫЙ МАТЧ</string>
+    <string name="dialog_reconnect_info">Матч с игроком %1$s ещё активен. Отказ от продолжения будет засчитан как поражение</string>
+    <string name="dialog_reconnect_opponent_fallback">Соперник</string>
+    <string name="dialog_reconnect_time_left">время на возвращение</string>
+    <string name="dialog_reconnect_confirm">Вернуться</string>
+    <string name="dialog_reconnect_connecting">Подключение…</string>
+    <string name="dialog_reconnect_decline">Отказаться</string>
+
+    <!-- Диалог об отключении противника из матча -->
+    <string name="dialog_opponent_disconnected_title">СОПЕРНИК ОТКЛЮЧИЛСЯ</string>
+    <string name="dialog_opponent_disconnected_info">Игрок %1$s потерял соединение. Матч продолжится автоматически после его возвращения</string>
+
+</resources>

@@ -1,0 +1,145 @@
+cards.png
+size: 1132,1290
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+pauli_x
+  rotate: false
+  xy: 2, 2
+  size: 224, 320
+  orig: 224, 320
+  offset: 0, 0
+  index: -1
+pauli_y
+  rotate: false
+  xy: 228, 2
+  size: 224, 320
+  orig: 224, 320
+  offset: 0, 0
+  index: -1
+pauli_z
+  rotate: false
+  xy: 454, 2
+  size: 224, 320
+  orig: 224, 320
+  offset: 0, 0
+  index: -1
+pauli_x3
+  rotate: false
+  xy: 680, 2
+  size: 224, 320
+  orig: 224, 320
+  offset: 0, 0
+  index: -1
+pauli_y3
+  rotate: false
+  xy: 906, 2
+  size: 224, 320
+  orig: 224, 320
+  offset: 0, 0
+  index: -1
+pauli_z3
+  rotate: false
+  xy: 2, 324
+  size: 224, 320
+  orig: 224, 320
+  offset: 0, 0
+  index: -1
+rotate_x
+  rotate: false
+  xy: 228, 324
+  size: 224, 320
+  orig: 224, 320
+  offset: 0, 0
+  index: -1
+rotate_y
+  rotate: false
+  xy: 454, 324
+  size: 224, 320
+  orig: 224, 320
+  offset: 0, 0
+  index: -1
+rotate_z
+  rotate: false
+  xy: 680, 324
+  size: 224, 320
+  orig: 224, 320
+  offset: 0, 0
+  index: -1
+phase_s
+  rotate: false
+  xy: 906, 324
+  size: 224, 320
+  orig: 224, 320
+  offset: 0, 0
+  index: -1
+phase_s_backwards
+  rotate: false
+  xy: 2, 646
+  size: 224, 320
+  orig: 224, 320
+  offset: 0, 0
+  index: -1
+hadamard_h
+  rotate: false
+  xy: 228, 646
+  size: 224, 320
+  orig: 224, 320
+  offset: 0, 0
+  index: -1
+hadamard_h3
+  rotate: false
+  xy: 454, 646
+  size: 224, 320
+  orig: 224, 320
+  offset: 0, 0
+  index: -1
+swap
+  rotate: false
+  xy: 680, 646
+  size: 224, 320
+  orig: 224, 320
+  offset: 0, 0
+  index: -1
+quantum_noise
+  rotate: false
+  xy: 906, 646
+  size: 224, 320
+  orig: 224, 320
+  offset: 0, 0
+  index: -1
+quantum_lucky
+  rotate: false
+  xy: 2, 968
+  size: 224, 320
+  orig: 224, 320
+  offset: 0, 0
+  index: -1
+kronecker_multiplication
+  rotate: false
+  xy: 228, 968
+  size: 224, 320
+  orig: 224, 320
+  offset: 0, 0
+  index: -1
+measurement
+  rotate: false
+  xy: 454, 968
+  size: 224, 320
+  orig: 224, 320
+  offset: 0, 0
+  index: -1
+identity
+  rotate: false
+  xy: 680, 968
+  size: 224, 320
+  orig: 224, 320
+  offset: 0, 0
+  index: -1
+reshuffle
+  rotate: false
+  xy: 906, 968
+  size: 224, 320
+  orig: 224, 320
+  offset: 0, 0
+  index: -1
