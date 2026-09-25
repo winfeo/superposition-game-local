@@ -1,57 +1,62 @@
 package io.github.winfeo.superpositiongame.android.ui.screen.game
 
-import android.content.res.Resources
 import android.os.Bundle
-import android.util.Log
 import android.view.View
+import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
-import androidx.appcompat.app.AppCompatActivity
 import androidx.activity.compose.setContent
+import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Text
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.fragment.app.FragmentContainerView
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
 import com.badlogic.gdx.backends.android.AndroidFragmentApplication
 import io.github.winfeo.superpositiongame.Main
+import io.github.winfeo.superpositiongame.R
 import io.github.winfeo.superpositiongame.android.data.source.AppModule
+import io.github.winfeo.superpositiongame.android.data.util.BoardGameStateMapper
+import io.github.winfeo.superpositiongame.android.domain.game.model.ConnectionStatus
+import io.github.winfeo.superpositiongame.android.ui.dialog.BoardConfirmationDialog
+import io.github.winfeo.superpositiongame.android.ui.dialog.BoardMessageDialog
+import io.github.winfeo.superpositiongame.android.ui.dialog.game.CardPreviewDialog
 import io.github.winfeo.superpositiongame.android.ui.dialog.game.GameDialogState
 import io.github.winfeo.superpositiongame.android.ui.dialog.game.GameDialogs
-import io.github.winfeo.superpositiongame.android.ui.dialog.game.CardPreviewDialog
-import io.github.winfeo.superpositiongame.android.ui.dialog.game.GameFinishedDialog
-import io.github.winfeo.superpositiongame.android.ui.dialog.game.GameMenuDialog
-import io.github.winfeo.superpositiongame.android.ui.dialog.game.OpponentDisconnectedDialog
 import io.github.winfeo.superpositiongame.android.ui.dialog.game.ReshuffleCardDialog
 import io.github.winfeo.superpositiongame.android.ui.dialog.game.RotateCardDialog
-import io.github.winfeo.superpositiongame.android.ui.dialog.game.RulesDialog
 import io.github.winfeo.superpositiongame.android.ui.theme.SuperpositionGameTheme
 import io.github.winfeo.superpositiongame.android.ui.theme.elements.BackgroundBlur
-import io.github.winfeo.superpositiongame.android.util.GameMusicPlayer
-import io.github.winfeo.superpositiongame.model.game.GamePhase
-import kotlinx.coroutines.launch
+import io.github.winfeo.superpositiongame.model.game.SlotOwner
 
 class GameActivity: AppCompatActivity(), AndroidFragmentApplication.Callbacks {
     private lateinit var viewModel: GameViewModel
-
-    private val gameMusicPlayer by lazy {
-        GameMusicPlayer(applicationContext)
-    }
+    private val mapper = BoardGameStateMapper()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        AppModule.init(applicationContext)
         onBackPressedDispatcher.addCallback(
             this,
             object : OnBackPressedCallback(true) {
@@ -59,219 +64,206 @@ class GameActivity: AppCompatActivity(), AndroidFragmentApplication.Callbacks {
             }
         )
 
-        processMusic()
-
-        val gameId = intent.getStringExtra("GAME_ID")
-            ?: throw Resources.NotFoundException("Отладка. Игра не передана")
-        val playerId = intent.getStringExtra("USER_ID")
-            ?: throw Resources.NotFoundException("Отладка. Не передан id игрока")
-
-        val viewModelFactory = object : ViewModelProvider.Factory {
-            override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                return GameViewModel(
-                    gameRepository = AppModule.gameRepository,
-                    pingRepository = AppModule.pingRepository,
-                    playerId = playerId,
-                    gameId = gameId
-                ) as T
+        viewModel = ViewModelProvider(
+            this,
+            object : ViewModelProvider.Factory {
+                override fun <T : ViewModel> create(modelClass: Class<T>): T {
+                    return GameViewModel(AppModule.gameRepository) as T
+                }
             }
+        )[GameViewModel::class.java]
+
+        val selfId = viewModel.session.value.selfId
+        if (selfId == null) {
+            finish()
+            return
         }
 
-        viewModel = ViewModelProvider(this, viewModelFactory)[GameViewModel::class.java]
-
-        val dialogs = GameDialogs(viewModel)
         val game = Main(
-            playerId = playerId,
-            dialogs = dialogs,
-            onMove = { viewModel.sendMove(it) },
-            getGameState = { viewModel.gameState.value!! }
+            playerId = selfId.toString(),
+            dialogs = GameDialogs(viewModel),
+            onMove = {
+                runOnUiThread {
+                    Toast.makeText(this, R.string.game_nfc_only, Toast.LENGTH_LONG).show()
+                }
+            },
+            getGameState = {
+                checkNotNull(mapper.map(viewModel.session.value)) {
+                    getString(R.string.game_state_unavailable)
+                }
+            },
+            onSlotSelected = { owner, cubit ->
+                val snapshot = viewModel.session.value.game
+                val player = snapshot?.playerIds?.indexOfFirst { id ->
+                    if (owner == SlotOwner.PLAYER) id == selfId else id != selfId
+                }?: -1
+
+                if (player >= 0) viewModel.selectTarget(player, cubit)
+            }
         )
 
         setContent {
-            SuperpositionGameTheme {
-                val gameState by viewModel.gameState.collectAsState()
+            SuperpositionGameTheme(darkTheme = true) {
+                val session by viewModel.session.collectAsState()
                 val dialogState by viewModel.dialogState.collectAsState()
-                val timerSeconds by viewModel.timerSeconds.collectAsState()
+                val mapped = remember(session) { mapper.map(session) }
+                var confirmGiveUp by remember { mutableStateOf(false) }
+                var showGameMenu by remember { mutableStateOf(false) }
+                val colors = MaterialTheme.colors
+                val muted = colorResource(R.color.board_text_muted)
+                val space16 = dimensionResource(R.dimen.space_16)
 
-                LaunchedEffect(gameState) {
-                    Log.d("GAME", "LaunchedEffect triggered ${gameState.hashCode()}")
-//                    val state = gameState?: return@LaunchedEffect
-//
-////                    Gdx.app.postRunnable {
-////                        game.updateState(state)
-////                    }
-//                    game.applyNewState(state)
-
-                    gameState?.let { state ->
-                        game.applyNewState(state)
-//                        viewModel.startTimer()
-                    }
+                LaunchedEffect(mapped) {
+                    mapped?.let(game::applyNewState)
                 }
 
-                LaunchedEffect(gameState?.phase, gameState?.winnerId) {
-                    val state = gameState ?: return@LaunchedEffect
-                    if (state.phase == GamePhase.GAME_FINISHED) {
-                        viewModel.showGameFinishedDialog(
-                            isWinner = state.winnerId == playerId,
-                            onReturnToLobby = { exit() }
-                        )
-                    }
-                }
-
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(Color(0xFF0C0813))
-//                        .background(Color.Red)
-                ) {
+                Box(Modifier.fillMaxSize().background(colors.background)) {
                     BackgroundBlur()
-
-                    Column(modifier = Modifier.fillMaxSize()) {
+                    Column(Modifier.fillMaxSize()) {
+                        val currentGame = session.game
+                        if (currentGame == null) {
+                            Text(
+                                text = stringResource(R.string.game_waiting_board_state),
+                                color = colors.onBackground,
+                                modifier = Modifier.padding(horizontal = space16)
+                            )
+                        } else {
+                            PlayerInfoPanel(
+                                session = session,
+                                onMenuClick = { showGameMenu = true }
+                            )
+                        }
+                        val selectedTarget = session.selectedTarget
                         Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .weight(1f)
+                            modifier = Modifier.fillMaxWidth()
+                                .height(dimensionResource(R.dimen.game_instruction_height)),
+                            contentAlignment = Alignment.CenterStart
                         ) {
-                            if (gameState != null) {
-                                PlayerInfoPanel(
-                                    gameState = gameState!!,
-                                    playerId = playerId,
-                                    timerSeconds = timerSeconds,
-                                    onPause = { viewModel.showGameMenuDialog(
-                                        onResume = { viewModel.dismissDialog() },
-                                        onRules = { viewModel.showRulesDialog() },
-                                        onSettings = {},
-                                        onSurrender = { viewModel.surrender() },
-                                        onDismiss = { viewModel.dismissDialog() }
-                                    ) }
-                                )
-                            }
+                            Text(
+                                text = when {
+                                    currentGame == null -> stringResource(R.string.game_waiting_start)
+                                    session.game?.currentPlayerId != selfId -> stringResource(R.string.game_wait_your_turn)
+                                    selectedTarget != null -> stringResource(
+                                        R.string.game_target_selected,
+                                        selectedTarget.cubit + 1
+                                    )
+                                    else -> stringResource(R.string.game_select_target)
+                                },
+                                color = muted,
+                                fontSize = 14.sp,
+                                lineHeight = 20.sp,
+                                maxLines = 2,
+                                overflow = TextOverflow.Ellipsis,
+                                modifier = Modifier.padding(horizontal = space16)
+                            )
                         }
 
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .weight(2f)
-                        ) {
+                        if (session.game != null && mapped == null) {
+                            Text(
+                                text = stringResource(R.string.game_state_display_error),
+                                color = colors.error,
+                                modifier = Modifier.padding(space16)
+                            )
+                        }
+
+                        Box(Modifier.fillMaxWidth().weight(1f)) {
                             AndroidView(
                                 modifier = Modifier.fillMaxSize(),
                                 factory = { context ->
-                                    val fragmentContainer = FragmentContainerView(context).apply {
+                                    FragmentContainerView(context).apply {
                                         id = View.generateViewId()
+                                        val fragment = GameFragment().also { it.game = game }
+                                        supportFragmentManager.beginTransaction()
+                                            .replace(id, fragment)
+                                            .commit()
                                     }
-
-                                    val fragment = GameFragment().apply {
-                                        this.game = game
-                                    }
-
-                                    (context as AppCompatActivity).supportFragmentManager
-                                        .beginTransaction()
-                                        .replace(fragmentContainer.id, fragment)
-                                        .commit()
-
-                                    fragmentContainer
                                 }
                             )
                         }
                     }
+                }
 
-                    dialogState?.let { dialog ->
-                        when (dialog) {
-                            is GameDialogState.RotateDialog -> {
-                                RotateCardDialog(
-                                    availableStates = dialog.availableStates,
-                                    onStateSelected = { selected ->
-                                        dialog.onStateSelected(selected)
-                                        viewModel.dismissDialog()
-                                    }
-                                )
+                when {
+                    session.connection == ConnectionStatus.ERROR -> {
+                        BoardMessageDialog(
+                            title = stringResource(R.string.network_error_title),
+                            message = stringResource(R.string.game_connection_lost),
+                            buttonText = stringResource(R.string.action_back_to_lobby),
+                            onConfirm = {
+                                viewModel.returnToLobby()
+                                finish()
                             }
-                            is GameDialogState.ReshuffleDialog -> {
-                                ReshuffleCardDialog(
-                                    cards = dialog.cards,
-                                    maxSelectable = dialog.maxSelectable,
-                                    minSelectable = dialog.minSelectable,
-                                    onCardsSelected = { selectedCards ->
-                                        dialog.onCardsSelected(selectedCards)
-                                        viewModel.dismissDialog()
-                                    }
-                                )
+                        )
+                    }
+                    session.winner != null -> {
+                        val winner = checkNotNull(session.winner)
+                        BoardMessageDialog(
+                            title = if (winner.id == selfId) {
+                                stringResource(R.string.game_victory_title)
+                            } else {
+                                stringResource(R.string.game_ended_title)
+                            },
+                            message = stringResource(R.string.game_winner, winner.name),
+                            buttonText = stringResource(R.string.action_back_to_lobby),
+                            onConfirm = {
+                                viewModel.returnToLobby()
+                                finish()
                             }
-                            is GameDialogState.CardPreviewDialog -> {
-                                CardPreviewDialog(
-                                    card = dialog.card,
-                                    onDismiss = { viewModel.dismissDialog() }
-                                )
+                        )
+                    }
+                    showGameMenu -> {
+                        BoardConfirmationDialog(
+                            title = stringResource(R.string.game_menu_title),
+                            message = stringResource(R.string.game_menu_message),
+                            confirmText = stringResource(R.string.action_give_up),
+                            cancelText = stringResource(R.string.action_continue),
+                            onConfirm = {
+                                showGameMenu = false
+                                confirmGiveUp = true
+                            },
+                            onDismiss = { showGameMenu = false }
+                        )
+                    }
+                    confirmGiveUp -> {
+                        BoardConfirmationDialog(
+                            title = stringResource(R.string.game_give_up_title),
+                            message = stringResource(R.string.game_give_up_message),
+                            confirmText = stringResource(R.string.action_give_up),
+                            cancelText = stringResource(R.string.action_continue),
+                            onConfirm = {
+                                viewModel.giveUp()
+                                confirmGiveUp = false
+                            },
+                            onDismiss = { confirmGiveUp = false }
+                        )
+                    }
+                    else -> when (val dialog = dialogState) {
+                        is GameDialogState.Rotate -> RotateCardDialog(
+                            availableStates = dialog.availableStates,
+                            onStateSelected = { selected ->
+                                dialog.onStateSelected(selected)
+                                viewModel.dismissDialog()
                             }
-                            is GameDialogState.GameFinishedDialog -> {
-                                GameFinishedDialog(
-                                    isWinner = dialog.isWinner,
-                                    onReturnToLobby = dialog.onReturnToLobby
-                                )
+                        )
+                        is GameDialogState.Reshuffle -> ReshuffleCardDialog(
+                            cards = dialog.cards,
+                            minSelectable = dialog.minSelectable,
+                            maxSelectable = dialog.maxSelectable,
+                            onCardsSelected = { selected ->
+                                dialog.onCardsSelected(selected)
+                                viewModel.dismissDialog()
                             }
-
-                            is GameDialogState.GameMenuDialog -> {
-                                GameMenuDialog(
-                                    onResume = dialog.onResume,
-                                    onRules = dialog.onRules,
-                                    onSettings = dialog.onSettings,
-                                    onSurrender = dialog.onSurrender,
-                                    onDismiss = dialog.onDismiss
-                                )
-                            }
-
-                            is GameDialogState.RulesDialog -> {
-                                RulesDialog(
-                                    onDismiss = { viewModel.dismissDialog() }
-                                )
-                            }
-
-                            is GameDialogState.OpponentDisconnectedDialog -> {
-                                OpponentDisconnectedDialog(
-                                    opponentNickname = dialog.opponentNickname,
-                                    reconnectDeadline = dialog.reconnectDeadline,
-                                    serverTime = dialog.serverTime
-                                )
-                            }
-                        }
+                        )
+                        is GameDialogState.CardPreview -> CardPreviewDialog(
+                            card = dialog.card,
+                            onDismiss = viewModel::dismissDialog
+                        )
+                        null -> Unit
                     }
                 }
             }
         }
     }
 
-    private fun processMusic() {
-        lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.RESUMED) {
-                AppModule.settingsManager.isMusicEnabled.collect { isEnabled ->
-                    if (isEnabled) gameMusicPlayer.play()
-                    else gameMusicPlayer.pause()
-                }
-            }
-        }
-    }
-
-    override fun exit() {
-        finish()
-    }
-
-    override fun onStart() {
-        super.onStart()
-        if (::viewModel.isInitialized) {
-            viewModel.onGameVisible()
-        }
-    }
-
-    override fun onStop() {
-        if (::viewModel.isInitialized) {
-            viewModel.onGameHidden()
-        }
-        gameMusicPlayer.pause()
-        super.onStop()
-    }
-
-    override fun onDestroy() {
-        gameMusicPlayer.release()
-        super.onDestroy()
-    }
+    override fun exit() = finish()
 }
