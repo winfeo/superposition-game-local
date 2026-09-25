@@ -1,10 +1,19 @@
+# «Суперпозиция» локальная версия
+
 <p align="center">
-  <img src="assets/readme-logo.png" alt="Логотип Суперпозиции — локальная версия" width="160">
+  <img src="assets/readme-logo.png" alt="Логотип Суперпозиции" width="160">
 </p>
 
-# Суперпозиция (локальная версия)
+<p align="center">
+  <img src="https://img.shields.io/badge/Kotlin-2.2.21-7F52FF?style=flat&logo=kotlin&logoColor=white&labelColor=3D3D3D" alt="Kotlin 2.2.21">
+  <img src="https://img.shields.io/badge/Android-API%2021%2B-2ECC71?style=flat&logo=android&logoColor=white&labelColor=3D3D3D" alt="Android API 21+">
+  <img src="https://img.shields.io/badge/Jetpack%20Compose-UI-2878D0?style=flat&logo=jetpackcompose&logoColor=white&labelColor=3D3D3D" alt="Jetpack Compose UI">
+  <img src="https://img.shields.io/badge/libGDX-1.14.0-D84A4A?style=flat&labelColor=3D3D3D" alt="libGDX 1.14.0">
+  <img src="https://img.shields.io/badge/OkHttp-4.11.0-2878D0?style=flat&labelColor=3D3D3D" alt="OkHttp 4.11.0">
+  <img src="https://img.shields.io/badge/ESP32-WebSocket-6254B8?style=flat&labelColor=3D3D3D" alt="ESP32 WebSocket">
+</p>
 
-**Суперпозиция (локально)** - это Android-клиент для игры с платой на ESP32. Плата управляет партией и считывает физические карты через NFC. Телефон показывает лобби и игровое поле, позволяет выбрать соперника и целевой кубит.
+Android-клиент для игры с платой на ESP32. Плата управляет партией и считывает физические карты через NFC. Телефон показывает лобби и игровое поле, позволяет выбрать соперника и целевой кубит.
 
 Проект использует игровые модели и отрисовку оригинальной игры «Суперпозиция», подключается к локальной плате по WebSocket.
 
