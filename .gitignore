@@ -9,3 +9,5 @@ local.properties
 *.apk
 *.aab
 *.log
+/android/libs/
+/core/build/
