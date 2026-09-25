@@ -5,20 +5,12 @@ import io.github.winfeo.superpositiongame.graphics.Dialogs
 import io.github.winfeo.superpositiongame.model.card.Card
 import io.github.winfeo.superpositiongame.model.dice.DiceState
 
-class GameDialogs(
-    private val viewModel: GameViewModel
-): Dialogs {
-
+class GameDialogs(private val viewModel: GameViewModel) : Dialogs {
     override fun showRotateCardDialog(
         availableStates: List<DiceState>,
         onStateSelected: (DiceState) -> Unit
     ) {
-        viewModel.showRotateCardDialog(
-            availableStates = availableStates,
-            onStateSelected = onStateSelected
-        )
-
-
+        viewModel.showRotateCardDialog(availableStates, onStateSelected)
     }
 
     override fun showReshuffleDialog(
@@ -27,12 +19,7 @@ class GameDialogs(
         minSelectable: Int,
         onCardsSelected: (List<Card>) -> Unit
     ) {
-        viewModel.showReshuffleDialog(
-            cards = cards,
-            maxSelectable = maxSelectable,
-            minSelectable = minSelectable,
-            onCardsSelected = onCardsSelected
-        )
+        viewModel.showReshuffleDialog(cards, minSelectable, maxSelectable, onCardsSelected)
     }
 
     override fun showCardPreview(card: Card) {
