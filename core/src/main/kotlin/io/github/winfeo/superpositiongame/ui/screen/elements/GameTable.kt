@@ -1,6 +1,8 @@
 package io.github.winfeo.superpositiongame.ui.screen.elements
 
 import com.badlogic.gdx.scenes.scene2d.ui.Table
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
+import com.badlogic.gdx.scenes.scene2d.InputEvent
 import io.github.winfeo.superpositiongame.model.game.GameState
 import io.github.winfeo.superpositiongame.config.GameConfig
 import io.github.winfeo.superpositiongame.manager.CardsDragAndDropManager
@@ -15,7 +17,8 @@ class GameTable(
     private val playerId: String,
     private val dragManager: CardsDragAndDropManager,
     private val cardActorBuilder: CardActorBuilder,
-    private val diceActorBuilder: DiceActorBuilder
+    private val diceActorBuilder: DiceActorBuilder,
+    private val onSlotSelected: ((SlotOwner, Int) -> Unit)? = null
 //    private val playerActionController: PlayerActionController
 ): Table() {
     private val playerSlots = mutableListOf<SlotActor>()
@@ -56,6 +59,13 @@ class GameTable(
                 diceActorBuilder = diceActorBuilder
             )
             dragManager.makeSlotTarget(slot)
+            onSlotSelected?.let { callback ->
+                slot.addListener(object : ClickListener() {
+                    override fun clicked(event: InputEvent?, x: Float, y: Float) {
+                        callback(SlotOwner.OPPONENT, index)
+                    }
+                })
+            }
             opponentSlots.add(slot)
             opponentRow.add(slot)
         }
@@ -75,6 +85,13 @@ class GameTable(
                 diceActorBuilder = diceActorBuilder
             )
             dragManager.makeSlotTarget(slot)
+            onSlotSelected?.let { callback ->
+                slot.addListener(object : ClickListener() {
+                    override fun clicked(event: InputEvent?, x: Float, y: Float) {
+                        callback(SlotOwner.PLAYER, index)
+                    }
+                })
+            }
             playerSlots.add(slot)
             playerRow.add(slot)
         }

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="@color/board_background" />
+        </shape>
+    </item>
+    <item
+        android:drawable="@drawable/logo_cube"
+        android:left="19dp"
+        android:top="24dp"
+        android:right="23dp"
+        android:bottom="18dp" />
+    <item
+        android:drawable="@drawable/logo_signal"
+        android:left="70dp"
+        android:top="12dp"
+        android:right="12dp"
+        android:bottom="70dp" />
+</layer-list>

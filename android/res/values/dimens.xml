@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="space_8">8dp</dimen>
+    <dimen name="space_16">16dp</dimen>
+    <dimen name="space_24">24dp</dimen>
+    <dimen name="space_32">32dp</dimen>
+    <dimen name="corner_16">16dp</dimen>
+    <dimen name="dialog_button_corner">12dp</dimen>
+    <dimen name="connection_progress_size">24dp</dimen>
+    <dimen name="register_face_size">48dp</dimen>
+    <dimen name="background_blur_radius">200dp</dimen>
+    <dimen name="dialog_corner">24dp</dimen>
+    <dimen name="dialog_button_height">48dp</dimen>
+    <dimen name="dialog_preview_width">224dp</dimen>
+    <dimen name="dialog_preview_height">320dp</dimen>
+    <dimen name="dialog_grid_max_height">320dp</dimen>
+    <dimen name="hud_avatar_size">40dp</dimen>
+    <dimen name="hud_timer_track_height">4dp</dimen>
+    <dimen name="hud_menu_size">48dp</dimen>
+    <dimen name="lobby_player_card_min_height">80dp</dimen>
+    <dimen name="lobby_avatar_size">48dp</dimen>
+    <dimen name="lobby_avatar_icon_size">32dp</dimen>
+    <dimen name="lobby_play_button_min_width">80dp</dimen>
+    <dimen name="lobby_play_button_height">40dp</dimen>
+    <dimen name="hud_card_corner">24dp</dimen>
+    <dimen name="hud_glow_radius">16dp</dimen>
+    <dimen name="game_instruction_height">48dp</dimen>
+</resources>

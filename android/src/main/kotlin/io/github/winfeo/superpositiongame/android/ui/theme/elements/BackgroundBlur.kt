@@ -3,19 +3,25 @@ package io.github.winfeo.superpositiongame.android.ui.theme.elements
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.dimensionResource
+import io.github.winfeo.superpositiongame.R
 
 @Composable
 fun BackgroundBlur() {
+    val blurBlue = colorResource(R.color.board_primary_variant)
+    val blurAccent = MaterialTheme.colors.primary
+
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .blur(200.dp)
+            .blur(dimensionResource(R.dimen.background_blur_radius))
     ) {
         Canvas(
             modifier = Modifier.fillMaxSize()
@@ -39,17 +45,17 @@ fun BackgroundBlur() {
 
             drawPath(
                 path = topArc,
-                color = Color(0xFF3D4AEB).copy(alpha = 0.1f)
+                color = blurBlue.copy(alpha = 0.1f)
             )
 
             drawPath(
                 path = topArc,
-                color = Color(0xFF3D4AEB).copy(alpha = 0.1f)
+                color = blurBlue.copy(alpha = 0.1f)
             )
 
             drawPath(
                 path = topArc,
-                color = Color(0xFF6C8CFF).copy(alpha = 0.08f)
+                color = blurAccent.copy(alpha = 0.08f)
             )
 
             val topBlob2 = Path().apply {
@@ -72,7 +78,7 @@ fun BackgroundBlur() {
 
             drawPath(
                 path = topBlob2,
-                color = Color(0xFF3D4AEB).copy(alpha = 0.06f)
+                color = blurBlue.copy(alpha = 0.06f)
             )
 
             val bottomBlob = Path().apply {
@@ -101,7 +107,7 @@ fun BackgroundBlur() {
 
             drawPath(
                 path = bottomBlob,
-                color = Color(0xFF3D4AEB).copy(alpha = 0.08f)
+                color = blurBlue.copy(alpha = 0.08f)
             )
 
             val secondBlob = Path().apply {
@@ -130,7 +136,7 @@ fun BackgroundBlur() {
 
             drawPath(
                 path = secondBlob,
-                color = Color(0xFF3D4AEB).copy(alpha = 0.08f)
+                color = blurBlue.copy(alpha = 0.08f)
             )
         }
     }

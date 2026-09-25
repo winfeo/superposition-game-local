@@ -63,7 +63,7 @@ configure(subprojects - project(':android')) {
 
 subprojects {
   version = "$projectVersion"
-  ext.appName = 'ВЫSuperpositionGame'
+  ext.appName = 'SuperpositionGameLocal'
   repositories {
     mavenCentral()
 //    maven { url 'https://s01.oss.sonatype.org' }
@@ -76,4 +76,4 @@ subprojects {
   }
 }
 
-eclipse.project.name = 'ВЫSuperpositionGame' + '-parent'
+eclipse.project.name = 'SuperpositionGameLocal-parent'

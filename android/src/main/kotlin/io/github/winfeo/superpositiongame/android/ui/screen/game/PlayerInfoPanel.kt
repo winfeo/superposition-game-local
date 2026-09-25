@@ -1,173 +1,121 @@
 package io.github.winfeo.superpositiongame.android.ui.screen.game
 
-import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Icon
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.github.winfeo.superpositiongame.R
-import io.github.winfeo.superpositiongame.model.card.Card
-import io.github.winfeo.superpositiongame.model.card.CardRepository
-import io.github.winfeo.superpositiongame.model.dice.Dice
-import io.github.winfeo.superpositiongame.model.dice.DiceState
-import io.github.winfeo.superpositiongame.model.game.GamePhase
-import io.github.winfeo.superpositiongame.model.game.GameState
-import io.github.winfeo.superpositiongame.model.game.PlayerState
-import io.github.winfeo.superpositiongame.model.game.SlotOwner
-import io.github.winfeo.superpositiongame.model.game.SlotState
+import io.github.winfeo.superpositiongame.android.domain.game.model.BoardSession
+import io.github.winfeo.superpositiongame.android.domain.game.model.ConnectionStatus
 import java.util.Locale
 
 @Composable
 fun PlayerInfoPanel(
-    gameState: GameState,
-    playerId: String,
-    timerSeconds: Int,
-    onPause: () -> Unit
+    session: BoardSession,
+    timerSeconds: Int? = null,
+    onMenuClick: () -> Unit
 ) {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-//            .fillMaxHeight(0.33f)
-//            .background(Color(0xFF0C0813))
-    ) {
-//        BackgroundBlur()
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(
-                    horizontal = 16.dp,
-                    vertical = 16.dp
-                )
-        ) {
-            //Меню паузы
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 16.dp),
-                contentAlignment = Alignment.TopEnd
-            ) {
-                PauseButton(onClick = onPause)
-            }
+    val game = session.game ?: return
+    val selfId = session.selfId ?: return
+    val opponentId = game.playerIds.firstOrNull { it != selfId } ?: return
+    val selfName = session.players.firstOrNull { it.id == selfId }?.name
+        ?.takeIf(String::isNotBlank)
+        ?: stringResource(R.string.game_player_fallback, selfId)
+    val opponentName = session.players.firstOrNull { it.id == opponentId }?.name
+        ?.takeIf(String::isNotBlank)
+        ?: stringResource(R.string.game_player_fallback, opponentId)
+    val spacing = dimensionResource(R.dimen.space_16)
 
-            val player = gameState.players[playerId]
-            val playerName = player?.nickname?: playerId
-
-            val opponentId = gameState.players.keys.first { it != playerId }
-            val opponent = gameState.players[opponentId]
-            val opponentName = opponent?.nickname?: opponentId
-
-            val gameTask = buildTaskString(player)
-
-            GameHud(
-                playerName = playerName,
-                opponentName = opponentName,
-                isPlayerTurn = gameState.currentPlayerId == playerId,
-                timerSeconds = timerSeconds,
-                gameTask = gameTask
-            )
-        }
-    }
-}
-
-private fun buildTaskString(playerState: PlayerState?): String {
-    if (playerState == null) return ""
-
-    return playerState.slots.joinToString("    ") { slot ->
-        slot.dice.requiredState?.stateName?: "?"
-    }
-}
-
-/* ---------------- Игровой худ ---------------- */
-@Composable
-fun GameHud(
-    playerName: String,
-    opponentName: String,
-    isPlayerTurn: Boolean,
-    timerSeconds: Int,
-    gameTask: String
-) {
     Column(
+        modifier = Modifier.fillMaxWidth().padding(spacing),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        Box(
+            modifier = Modifier.fillMaxWidth().padding(bottom = spacing),
+            contentAlignment = Alignment.TopEnd
+        ) {
+            GameMenuButton(
+                enabled = session.gameStarted && session.connection == ConnectionStatus.CONNECTED,
+                onClick = onMenuClick
+            )
+        }
+
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
             PlayerCard(
-                name = playerName.take(9),
-                isCurrentPlayerCard = true,
-                isCurrentTurn = isPlayerTurn,
+                name = selfName,
+                isSelf = true,
+                isCurrentTurn = game.currentPlayerId == selfId,
                 modifier = Modifier.weight(1f)
             )
-
-            Spacer(modifier = Modifier.width(16.dp))
-
-            Timer(
-                timerSeconds = timerSeconds,
-                modifier = Modifier.weight(0.8f)
-            )
-
-            Spacer(modifier = Modifier.width(16.dp))
-
+            Spacer(Modifier.size(spacing))
+            GameTimer(timerSeconds, modifier = Modifier.weight(0.8f))
+            Spacer(Modifier.size(spacing))
             PlayerCard(
-                name = opponentName.take(9),
-                isCurrentPlayerCard = false,
-                isCurrentTurn = !isPlayerTurn,
+                name = opponentName,
+                isSelf = false,
+                isCurrentTurn = game.currentPlayerId == opponentId,
                 modifier = Modifier.weight(1f)
             )
         }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        TaskInfo(
-            text = gameTask
-        )
+        Spacer(Modifier.height(spacing))
+        TaskInfo(game.targetRegister)
     }
 }
 
-/* ---------------- Карточка  игрока ---------------- */
 @Composable
-fun PlayerCard(
+private fun PlayerCard(
     name: String,
-    isCurrentPlayerCard: Boolean,
+    isSelf: Boolean,
     isCurrentTurn: Boolean,
     modifier: Modifier = Modifier
 ) {
-    val glow = if (isCurrentTurn) Color(0xFF6C8CFF).copy(alpha = 0.25f)
-    else Color.White.copy(alpha = 0.04f)
-
-    val border = if (isCurrentTurn) Color(0xFF6C8CFF).copy(alpha = 0.35f)
-    else Color.White.copy(alpha = 0.06f)
-
-    val playerTag = if (isCurrentPlayerCard) "(${stringResource(R.string.panel_player_tag)})" else ""
+    val colors = MaterialTheme.colors
+    val shape = RoundedCornerShape(dimensionResource(R.dimen.hud_card_corner))
+    val glow = if (isCurrentTurn) colors.primary.copy(alpha = 0.25f)
+        else colors.onSurface.copy(alpha = 0.04f)
+    val border = if (isCurrentTurn) colors.primary.copy(alpha = 0.35f)
+        else colors.onSurface.copy(alpha = 0.06f)
 
     Box(
         modifier = modifier
@@ -175,87 +123,73 @@ fun PlayerCard(
             .padding(4.dp)
     ) {
         Box(
-            modifier = Modifier
+            Modifier
                 .matchParentSize()
-                .clip(RoundedCornerShape(22.dp))
-                .blur(18.dp)
-                .background(glow, RoundedCornerShape(22.dp))
+                .clip(shape)
+                .blur(dimensionResource(R.dimen.hud_glow_radius))
+                .background(glow, shape)
         )
-
         Column(
             modifier = Modifier
                 .matchParentSize()
-                .clip(RoundedCornerShape(22.dp))
+                .clip(shape)
                 .background(
                     Brush.verticalGradient(
                         listOf(
-                            Color.White.copy(alpha = 0.1f),
-                            Color.White.copy(alpha = 0.04f)
+                            colors.onSurface.copy(alpha = 0.10f),
+                            colors.onSurface.copy(alpha = 0.04f)
                         )
                     )
                 )
-                .border(1.dp, border, RoundedCornerShape(22.dp)),
+                .border(Dp.Hairline, border, shape)
+                .padding(dimensionResource(R.dimen.space_8)),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            Avatar(
-                isCurrentTurn = isCurrentTurn,
-                modifier = Modifier.fillMaxWidth(0.4f)
-            )
-
-            Spacer(modifier = Modifier.height(8.dp))
-
+            PlayerAvatar(isCurrentTurn)
+            Spacer(Modifier.height(dimensionResource(R.dimen.space_8)))
             Text(
-                text = "$name $playerTag",
-                color = Color.White.copy(alpha = 0.9f),
+                text = if (isSelf) stringResource(R.string.game_player_self, name) else name,
+                color = colors.onSurface.copy(alpha = 0.9f),
                 fontSize = 16.sp,
                 fontWeight = FontWeight.SemiBold,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 textAlign = TextAlign.Center
             )
-
-            Spacer(modifier = Modifier.height(4.dp))
-
-            val text =
-                if (isCurrentTurn) { stringResource(R.string.panel_turn_tag_active).uppercase() }
-                else { stringResource(R.string.panel_turn_tag_wait).uppercase() }
-            val color =
-                if (isCurrentTurn) Color(0xFF9DB2FF)
-                else Color.White.copy(alpha = 0.35f)
-
+            Spacer(Modifier.height(dimensionResource(R.dimen.space_8)))
             Text(
-                text = text,
-                color = color,
+                text = stringResource(
+                    if (isCurrentTurn) R.string.panel_turn_tag_active
+                    else R.string.panel_turn_tag_wait
+                ).uppercase(),
+                color = if (isCurrentTurn) colors.primary else colors.onSurface.copy(alpha = 0.35f),
                 fontSize = 12.sp,
                 fontWeight = FontWeight.Medium,
-                letterSpacing = 1.sp
+                letterSpacing = 1.sp,
+                maxLines = 1
             )
         }
     }
 }
 
-/* ---------------- Аватар ---------------- */
 @Composable
-fun Avatar(
-    isCurrentTurn: Boolean,
-    modifier: Modifier = Modifier
-) {
-    val glow = if (isCurrentTurn) Color(0xFF6C8CFF).copy(alpha = 0.35f)
-    else Color.White.copy(alpha = 0.06f)
+private fun PlayerAvatar(isCurrentTurn: Boolean) {
+    val colors = MaterialTheme.colors
+    val glow = if (isCurrentTurn) colors.primary.copy(alpha = 0.35f)
+        else colors.onSurface.copy(alpha = 0.06f)
 
     Box(
-        modifier = modifier.aspectRatio(1f),
+        modifier = Modifier.size(dimensionResource(R.dimen.hud_avatar_size)),
         contentAlignment = Alignment.Center
     ) {
         Box(
-            modifier = Modifier
+            Modifier
                 .matchParentSize()
                 .clip(CircleShape)
-                .blur(16.dp)
+                .blur(dimensionResource(R.dimen.hud_glow_radius))
                 .background(glow, CircleShape)
         )
-
         Box(
             modifier = Modifier
                 .matchParentSize()
@@ -263,49 +197,30 @@ fun Avatar(
                 .background(
                     Brush.radialGradient(
                         listOf(
-                            Color.White.copy(alpha = 0.25f),
-                            Color.White.copy(alpha = 0.05f)
+                            colors.onSurface.copy(alpha = 0.25f),
+                            colors.onSurface.copy(alpha = 0.05f)
                         )
                     )
                 )
-                .border(1.dp, Color.White.copy(alpha = 0.12f), CircleShape),
+                .border(Dp.Hairline, colors.onSurface.copy(alpha = 0.12f), CircleShape),
             contentAlignment = Alignment.Center
         ) {
             Image(
                 painter = painterResource(R.drawable.ic_panda),
                 contentDescription = null,
-                modifier = Modifier.fillMaxSize(0.5f),
-                colorFilter = ColorFilter.tint(Color.White.copy(alpha = 0.9f))
+                modifier = Modifier.size(dimensionResource(R.dimen.space_24)),
+                colorFilter = ColorFilter.tint(colors.onSurface.copy(alpha = 0.9f))
             )
         }
     }
 }
 
-/* ---------------- Таймер ---------------- */
 @Composable
-fun Timer(
-    timerSeconds: Int,
-    modifier: Modifier = Modifier
-) {
-    val minutes = timerSeconds / 60
-    val seconds = timerSeconds % 60
-    val time = String.format(Locale.US, "%02d:%02d", minutes, seconds)
-
-    val totalSeconds = 45
-    val progress = (timerSeconds.toFloat() / totalSeconds).coerceIn(0f, 1f)
-    val animatedProgress by animateFloatAsState(
-        targetValue = progress,
-        animationSpec = tween(
-            durationMillis = 500,
-            easing = LinearEasing
-        )
-    )
-
-    val barColor = when {
-        timerSeconds <= 10 -> Color(0xFFFF6B6B)
-//        timerSeconds <= 10 -> Color(0xFFFFD93D)
-        else -> Color(0xFF6C8CFF)
-    }
+private fun GameTimer(timerSeconds: Int?, modifier: Modifier = Modifier) {
+    val colors = MaterialTheme.colors
+    val time = timerSeconds?.let {
+        String.format(Locale.US, "%02d:%02d", it / 60, it % 60)
+    } ?: stringResource(R.string.game_timer_unavailable)
 
     Column(
         modifier = modifier,
@@ -314,296 +229,81 @@ fun Timer(
     ) {
         Text(
             text = time,
-            color = if (timerSeconds <= 10) Color(0xFFFF6B6B) else Color.White,
+            color = if (timerSeconds == null) colors.onSurface.copy(alpha = 0.55f)
+                else colors.onSurface,
             fontSize = 32.sp,
-            fontWeight = FontWeight.Bold
+            fontWeight = FontWeight.Bold,
+            maxLines = 1
         )
-
-        Spacer(modifier = Modifier.height(4.dp))
-
+        Spacer(Modifier.height(dimensionResource(R.dimen.space_8)))
         Box(
-            modifier = Modifier
+            Modifier
                 .fillMaxWidth(0.75f)
-                .height(4.dp)
-                .clip(RoundedCornerShape(2.dp))
-                .background(Color.White.copy(alpha = 0.1f)),
-            contentAlignment = Alignment.Center
+                .height(dimensionResource(R.dimen.hud_timer_track_height))
+                .clip(CircleShape)
+                .background(colors.onSurface.copy(alpha = 0.1f))
         ) {
-            Box(
-                modifier = Modifier
-                    .fillMaxHeight()
-                    .fillMaxWidth(animatedProgress)
-                    .clip(RoundedCornerShape(2.dp))
-                    .background(barColor)  // сплошной цвет
-            )
+            if (timerSeconds != null) {
+                Box(
+                    Modifier
+                        .fillMaxWidth((timerSeconds / 45f).coerceIn(0f, 1f))
+                        .fillMaxHeight()
+                        .clip(CircleShape)
+                        .background(colors.primary)
+                )
+            }
         }
-
-//        Box(
-//            modifier = Modifier
-//                .padding(top = 4.dp)
-//                .fillMaxWidth(0.6f)
-//                .height(3.dp)
-//                .background(
-//                    color = if (timerSeconds <= 10) Color(0xFFFF6B6B) else Color(0xFF6C8CFF),
-//                    shape = RoundedCornerShape(50.dp)
-//                )
-//        )
     }
 }
 
-/* ---------------- Задание ---------------- */
 @Composable
-fun TaskInfo(text: String) {
+private fun TaskInfo(faces: List<String>) {
+    val colors = MaterialTheme.colors
+    val shape = CircleShape
     Box(
         modifier = Modifier
             .fillMaxWidth(0.5f)
-            .background(
-                Color.White.copy(alpha = 0.06f),
-                RoundedCornerShape(50.dp)
-            )
-            .border(
-                1.dp,
-                Color.White.copy(alpha = 0.08f),
-                RoundedCornerShape(50.dp)
-            )
-            .padding(horizontal = 16.dp, vertical = 8.dp),
+            .clip(shape)
+            .background(colors.onSurface.copy(alpha = 0.06f))
+            .border(Dp.Hairline, colors.onSurface.copy(alpha = 0.08f), shape)
+            .padding(horizontal = dimensionResource(R.dimen.space_16),
+                vertical = dimensionResource(R.dimen.space_8)),
         contentAlignment = Alignment.Center
     ) {
         Text(
-            text = text,
-            color = Color.White.copy(alpha = 0.8f),
+            text = faces.take(4).joinToString("    ") { it.uppercase() },
+            color = colors.onSurface.copy(alpha = 0.8f),
             fontSize = 14.sp,
-            fontWeight = FontWeight.Medium
+            fontWeight = FontWeight.Medium,
+            maxLines = 1
         )
     }
 }
 
-/* ---------------- Кнопка паузы ---------------- */
 @Composable
-fun PauseButton(onClick: () -> Unit) {
+private fun GameMenuButton(enabled: Boolean, onClick: () -> Unit) {
+    val interactionSource = remember { MutableInteractionSource() }
+    val indication = LocalIndication.current
+    val colors = MaterialTheme.colors
     Box(
         modifier = Modifier
-            .size(48.dp)
+            .size(dimensionResource(R.dimen.hud_menu_size))
             .clip(CircleShape)
-            .background(Color.White.copy(alpha = 0.06f))
-            .border(1.dp, Color.White.copy(alpha = 0.08f), CircleShape)
-            .clickable { onClick() },
+            .background(colors.onSurface.copy(alpha = 0.06f))
+            .border(Dp.Hairline, colors.onSurface.copy(alpha = 0.08f), CircleShape)
+            .clickable(
+                interactionSource = interactionSource,
+                indication = indication,
+                enabled = enabled,
+                onClick = onClick
+            ),
         contentAlignment = Alignment.Center
     ) {
         Icon(
-            modifier = Modifier.size(24.dp),
             imageVector = Icons.Default.Menu,
-            contentDescription = null,
-            tint = Color.White.copy(alpha = 0.85f)
+            contentDescription = stringResource(R.string.game_menu_title),
+            tint = colors.onSurface.copy(alpha = if (enabled) 0.85f else 0.35f),
+            modifier = Modifier.size(dimensionResource(R.dimen.space_24))
         )
     }
-}
-
-@Preview(showBackground = true, showSystemUi = true)
-@Composable
-fun GameScreenPreview() {
-    val gameState = GameState(
-        phase = GamePhase.MOVE_START,
-        currentPlayerId = "player_2",
-        players = mapOf(
-            "player_1" to PlayerState(
-                id = "123",
-                nickname = null,
-                hand = listOf(
-                    Card(
-                        id = "card_1",
-                        textureId = "pauli_x",
-                        description = CardRepository.getDescription("pauli_x")!!
-                    ),
-                    Card(
-                        id = "card_2",
-                        textureId = "rotate_z",
-                        description = CardRepository.getDescription("rotate_z")!!
-                    ),
-                    Card(
-                        id = "card_3",
-                        textureId = "hadamard_h",
-                        description = CardRepository.getDescription("hadamard_h")!!
-                    ),
-                    Card(
-                        id = "card_4",
-                        textureId = "measurement",
-                        description = CardRepository.getDescription("measurement")!!
-                    ),
-                    Card(
-                        id = "card_5",
-                        textureId = "swap",
-                        description = CardRepository.getDescription("swap")!!
-                    ),
-                    Card(
-                        id = "card_6",
-                        textureId = "reshuffle",
-                        description = CardRepository.getDescription("reshuffle")!!
-                    )
-                ),
-                slots = listOf(
-                    SlotState(
-                        index = 0,
-                        slotOwner = SlotOwner.PLAYER,
-                        initialDice = Dice(
-                            id = "dice_1",
-                            state = DiceState.MINUS,
-                            requiredState = DiceState.PLUS
-                        ),
-                        dice = Dice(
-                            id = "dice_1",
-                            state = DiceState.MINUS,
-                            requiredState = DiceState.PLUS
-                        )
-                    ),
-                    SlotState(
-                        index = 1,
-                        slotOwner = SlotOwner.PLAYER,
-                        initialDice = Dice(
-                            id = "dice_2",
-                            state = DiceState.ONE,
-                            requiredState = DiceState.PLUS
-                        ),
-                        dice = Dice(
-                            id = "dice_2",
-                            state = DiceState.PLUS,
-                            requiredState = DiceState.PLUS
-                        ),
-                        appliedCards = listOf(
-                            Card(
-                                id = "applied_1",
-                                textureId = "pauli_x",
-                                description = CardRepository.getDescription("pauli_x")!!
-                            )
-                        )
-                    ),
-                    SlotState(
-                        index = 2,
-                        slotOwner = SlotOwner.OPPONENT,
-                        initialDice = Dice(
-                            id = "dice_3",
-                            state = DiceState.PLUS,
-                            requiredState = DiceState.PLUS
-                        ),
-                        dice = Dice(
-                            id = "dice_3",
-                            state = DiceState.PLUS,
-                            requiredState = DiceState.PLUS
-                        )
-                    ),
-                    SlotState(
-                        index = 3,
-                        slotOwner = SlotOwner.OPPONENT,
-                        initialDice = Dice(
-                            id = "dice_4",
-                            state = DiceState.ZERO,
-                            requiredState = DiceState.PLUS
-                        ),
-                        dice = Dice(
-                            id = "dice_4",
-                            state = DiceState.ZERO,
-                            requiredState = DiceState.PLUS
-                        )
-                    )
-                ),
-                skipNextTurn = false,
-                remainingMoves = 1
-            ),
-            "player_2" to PlayerState(
-                id = "player_2",
-                nickname = "Winfeo",
-                hand = listOf(
-                    Card(
-                        id = "card_7",
-                        textureId = "identity",
-                        description = CardRepository.getDescription("identity")!!
-                    )
-                ),
-                slots = listOf(
-                    SlotState(
-                        index = 0,
-                        slotOwner = SlotOwner.PLAYER,
-                        initialDice = Dice(
-                            id = "dice_5",
-                            state = DiceState.I,
-                            requiredState = DiceState.PLUS
-                        ),
-                        dice = Dice(
-                            id = "dice_5",
-                            state = DiceState.I,
-                            requiredState = DiceState.PLUS
-                        )
-                    ),
-                    SlotState(
-                        index = 1,
-                        slotOwner = SlotOwner.PLAYER,
-                        initialDice = Dice(
-                            id = "dice_6",
-                            state = DiceState.MINUS,
-                            requiredState = DiceState.PLUS
-                        ),
-                        dice = Dice(
-                            id = "dice_6",
-                            state = DiceState.PLUS,
-                            requiredState = DiceState.PLUS
-                        ),
-                        appliedCards = listOf(
-                            Card(
-                                id = "applied_2",
-                                textureId = "rotate_y",
-                                description = CardRepository.getDescription("rotate_y")!!
-                            ),
-                            Card(
-                                id = "applied_3",
-                                textureId = "hadamard_h",
-                                description = CardRepository.getDescription("hadamard_h")!!
-                            )
-                        )
-                    ),
-                    SlotState(
-                        index = 2,
-                        slotOwner = SlotOwner.OPPONENT,
-                        initialDice = Dice(
-                            id = "dice_7",
-                            state = DiceState.ONE,
-                            requiredState = DiceState.PLUS
-                        ),
-                        dice = Dice(
-                            id = "dice_7",
-                            state = DiceState.ONE,
-                            requiredState = DiceState.PLUS
-                        )
-                    ),
-                    SlotState(
-                        index = 3,
-                        slotOwner = SlotOwner.OPPONENT,
-                        initialDice = Dice(
-                            id = "dice_8",
-                            state = DiceState.I_MINUS,
-                            requiredState = DiceState.PLUS
-                        ),
-                        dice = Dice(
-                            id = "dice_8",
-                            state = DiceState.I_MINUS,
-                            requiredState = DiceState.PLUS
-                        )
-                    )
-                ),
-                skipNextTurn = false,
-                remainingMoves = 2
-            )
-        ),
-        turnNumber = 3,
-        activeSlotsRow = SlotOwner.PLAYER,
-        winnerId = null,
-        serverTime = 0L,
-        turnEndsAt = 0L
-    )
-
-    PlayerInfoPanel(
-        gameState = gameState,
-        playerId = "player_1",
-        timerSeconds = 45,
-        onPause = {}
-    )
 }

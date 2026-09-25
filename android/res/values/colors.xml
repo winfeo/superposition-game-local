@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="board_background">#FF0C0813</color>
+    <color name="board_surface">#FF181725</color>
+    <color name="board_primary">#FF6C8CFF</color>
+    <color name="board_primary_variant">#FF3D4AEB</color>
+    <color name="board_secondary">#FF4ED6A2</color>
+    <color name="board_on_dark">#FFFFFFFF</color>
+    <color name="board_on_light">#FF0C0813</color>
+    <color name="board_text_muted">#FFA9A8BA</color>
+    <color name="board_error">#FFFF5252</color>
+    <color name="board_light_background">#FFFFFFFF</color>
+    <color name="logo_border">#FF21C6C3</color>
+    <color name="logo_signal">#FF68E4C4</color>
+    <color name="ic_background_color">#F5A623FF</color>
+    <color name="background">@color/board_light_background</color>
+    <color name="backgroundBlack">@color/board_background</color>
+    <color name="dialog_surface_top">#FF25263D</color>
+    <color name="dialog_surface_bottom">#FF11121F</color>
+    <color name="dialog_button_start">#FF4B5DFF</color>
+    <color name="dialog_scrim">#B30C0813</color>
+    <color name="lobby_avatar_violet">#FF8D85E6</color>
+    <color name="lobby_avatar_orange">#FFE6A77B</color>
+    <color name="lobby_avatar_blue">#FF74A9D3</color>
+</resources>

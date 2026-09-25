@@ -1,9 +1,10 @@
 package io.github.winfeo.superpositiongame.android.domain.lobby
 
-import io.github.winfeo.superpositiongame.android.domain.lobby.model.Player
-import kotlinx.coroutines.flow.Flow
+import io.github.winfeo.superpositiongame.android.domain.game.model.BoardSession
+import kotlinx.coroutines.flow.StateFlow
 
 interface LobbyRepository {
-    fun observePlayersInLobby(currentUserId: String): Flow<List<Player>>
-    suspend fun sendInvitation(senderId: String, senderNickname: String?, receiverId: String)
+    val session: StateFlow<BoardSession>
+    fun retryConnection()
+    fun startGame(opponentId: Int): Boolean
 }
