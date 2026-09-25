@@ -6,6 +6,7 @@ import com.badlogic.gdx.utils.ScreenUtils
 import com.badlogic.gdx.utils.viewport.ScreenViewport
 import io.github.winfeo.superpositiongame.model.game.GameState
 import io.github.winfeo.superpositiongame.model.game.Move
+import io.github.winfeo.superpositiongame.model.game.SlotOwner
 import io.github.winfeo.superpositiongame.config.GameConfig
 import io.github.winfeo.superpositiongame.PlayerActionController
 import io.github.winfeo.superpositiongame.graphics.BorderTexture
@@ -32,7 +33,8 @@ class GameScreen(
     private val dialogs: Dialogs,
     private val onMove: (Move) -> Unit,
     private val getGameState: () -> GameState,
-    private val applyPendingState: () -> Unit
+    private val applyPendingState: () -> Unit,
+    private val onSlotSelected: ((SlotOwner, Int) -> Unit)? = null
 ) : KtxScreen {
     private val cardActorBuilder = CardActorBuilder(assetsManager = assetsManager)
     private val diceActorBuilder = DiceActorBuilder(assetsManager = assetsManager)
@@ -88,7 +90,8 @@ class GameScreen(
             playerId = playerId,
             dragManager = dragManager,
             cardActorBuilder = cardActorBuilder,
-            diceActorBuilder = diceActorBuilder
+            diceActorBuilder = diceActorBuilder,
+            onSlotSelected = onSlotSelected
         )
     }
 

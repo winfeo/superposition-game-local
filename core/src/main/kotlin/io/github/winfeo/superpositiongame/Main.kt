@@ -5,6 +5,7 @@ import io.github.winfeo.superpositiongame.graphics.Dialogs
 import io.github.winfeo.superpositiongame.manager.GameAssetsManager
 import io.github.winfeo.superpositiongame.model.game.GameState
 import io.github.winfeo.superpositiongame.model.game.Move
+import io.github.winfeo.superpositiongame.model.game.SlotOwner
 import io.github.winfeo.superpositiongame.ui.screen.GameScreen
 import ktx.app.KtxGame
 import ktx.app.KtxScreen
@@ -14,7 +15,8 @@ class Main(
     private val playerId: String,
     private val dialogs: Dialogs,
     private val onMove: (Move) -> Unit,
-    private val getGameState: () -> GameState
+    private val getGameState: () -> GameState,
+    private val onSlotSelected: ((SlotOwner, Int) -> Unit)? = null
 ): KtxGame<KtxScreen>() {
     @Volatile
     private var pendingState: GameState? = null
@@ -36,7 +38,8 @@ class Main(
             dialogs = dialogs,
             onMove = onMove,
             getGameState = getGameState,
-            applyPendingState = { updateState() }
+            applyPendingState = { updateState() },
+            onSlotSelected = onSlotSelected
         )
         gameScreen = screen
         addScreen(screen)
@@ -44,7 +47,7 @@ class Main(
     }
 
     fun applyNewState(state: GameState) {
-        Gdx.app.log("GAME_STATE_APPLY", "Применение обновлённого состояния\n" +
+        Gdx.app?.log("GAME_STATE_APPLY", "Применение обновлённого состояния\n" +
             "Фаза: ${state.phase}\n" +
             "Ход: ${state.turnNumber}\n" +
             "Карты в руке игрока: ${state.players[playerId]?.hand?.joinToString(", ")?: "пусто"}")
